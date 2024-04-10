@@ -4,33 +4,48 @@ import {
   screen,
   cleanup,
   fireEvent,
+  waitFor,
 } from '@testing-library/react-native';
-import Login from './LoginScreen';
+import LoginScreen from './LoginScreen';
 
 afterEach(cleanup);
 
 describe('check crash', () => {
   it('should not crash when rendered', () => {
-    render(<Login />);
+    render(<LoginScreen />);
 
     expect(screen.queryByTestId('login-screen')).toBeTruthy();
   });
 });
 
 describe('check validation', () => {
-  it('Email can not be blank', () => {
-    const login = render(<Login />);
+  it('Email can not be blank', async () => {
+    const login = render(<LoginScreen />);
     const inputEmail = login.getByTestId('Email');
     const submitButton = login.getByTestId('submit-button');
 
     fireEvent.changeText(inputEmail, '');
     fireEvent.press(submitButton);
 
-    screen.getByText('Email cannot be blank');
+    global.fetch = await jest.fn(() =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            code: 200,
+            message: 'ログインしました。',
+            access_token: '17262|7wvg41a6mSiuxqrvJ9Vg6nL8rUmtnkG57IwnGmZI',
+            role: 4,
+          }),
+      }),
+    );
+
+    await waitFor(() => {
+      screen.getByText('Email cannot be blank');
+    });
   });
 
   it('Check invalid email', () => {
-    const login = render(<Login />);
+    const login = render(<LoginScreen />);
     const inputEmail = login.getByTestId('Email');
     const submitButton = login.getByTestId('submit-button');
 
@@ -41,7 +56,7 @@ describe('check validation', () => {
   });
 
   it('Password can not be blank', () => {
-    const login = render(<Login />);
+    const login = render(<LoginScreen />);
     const inputPassword = login.getByTestId('Password');
     const submitButton = login.getByTestId('submit-button');
 
@@ -52,7 +67,7 @@ describe('check validation', () => {
   });
 
   it('Password must be more than 4 characters', () => {
-    const login = render(<Login />);
+    const login = render(<LoginScreen />);
     const inputPassword = login.getByTestId('Password');
     const submitButton = login.getByTestId('submit-button');
 
@@ -63,7 +78,7 @@ describe('check validation', () => {
   });
 
   it('Forspanm Success', () => {
-    const login = render(<Login />);
+    const login = render(<LoginScreen />);
     const inputEmail = login.getByTestId('Email');
     const inputPassword = login.getByTestId('Password');
     const submitButton = login.getByTestId('submit-button');
@@ -77,7 +92,7 @@ describe('check validation', () => {
   });
 
   it('Error messages should be removed if form is valid', () => {
-    const login = render(<Login />);
+    const login = render(<LoginScreen />);
     const inputEmail = login.getByTestId('Email');
     const inputPassword = login.getByTestId('Password');
     const submitButton = login.getByTestId('submit-button');

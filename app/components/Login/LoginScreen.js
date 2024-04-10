@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Button, StyleSheet, Text, TextInput, View} from 'react-native';
 
-export const Login = () => {
+const LoginScreen = () => {
   const [formData, setFormData] = useState({
     values: {
       email: '',
@@ -25,6 +25,27 @@ export const Login = () => {
     });
   };
 
+  const callApiLogin = (email, password) => {
+    const formDataApi = new FormData();
+    formDataApi.append('email', email);
+    formDataApi.append('password', password);
+
+    fetch('https://snafty-staging.test-development.work/ai-img/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(formDataApi),
+    })
+      .then(response => {
+        console.log('response.json()?.data:', response.json()?.data);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
+
   const handleSubmit = event => {
     const errors = validation();
     const isValid = !errors.email && !errors.password ? true : false;
@@ -45,6 +66,10 @@ export const Login = () => {
           password: '',
         },
       });
+    }
+
+    if (formData.isValid) {
+      callApiLogin(formData?.values?.email, formData?.values?.password);
     }
   };
 
@@ -121,6 +146,6 @@ export const Login = () => {
   );
 };
 
-export default Login;
+export default LoginScreen;
 
 const styles = StyleSheet.create({});

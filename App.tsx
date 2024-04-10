@@ -24,7 +24,7 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
-import Login from './app/components/Login/LoginScreen';
+import LoginScreen from './app/components/Login/LoginScreen';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -66,7 +66,7 @@ function App(): React.JSX.Element {
 
   return (
     <SafeAreaView style={backgroundStyle}>
-      <Login />
+      <LoginScreen />
     </SafeAreaView>
   );
 }
