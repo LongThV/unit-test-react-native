@@ -6,7 +6,7 @@ import {
   fireEvent,
   waitFor,
 } from '@testing-library/react-native';
-import LoginScreen from './LoginScreen';
+import LoginScreen, {callApiLogin} from './LoginScreen';
 
 afterEach(cleanup);
 
@@ -27,19 +27,22 @@ describe('check validation', () => {
     fireEvent.changeText(inputEmail, '');
     fireEvent.press(submitButton);
 
-    global.fetch = await jest.fn(() =>
-      Promise.resolve({
-        json: () =>
-          Promise.resolve({
-            code: 200,
-            message: 'ログインしました。',
-            access_token: '17262|7wvg41a6mSiuxqrvJ9Vg6nL8rUmtnkG57IwnGmZI',
-            role: 4,
-          }),
-      }),
-    );
+    global.fetch = await jest.fn(() => {
+      var p = new Promise((resolve, reject) => {
+        resolve({
+          json: function () {
+            return {Id: 5};
+          },
+        });
+      });
+      return p;
+    });
+
+    const response = callApiLogin();
+    console.log('response:', response);
 
     await waitFor(() => {
+      expect(response).toBe(1);
       screen.getByText('Email cannot be blank');
     });
   });
