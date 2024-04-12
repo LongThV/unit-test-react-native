@@ -6,19 +6,41 @@ import {
   fireEvent,
   waitFor,
 } from '@testing-library/react-native';
-import LoginScreen from './LoginScreen';
+import LoginScreen, {callApiLogin} from './LoginScreen';
 
-afterEach(cleanup);
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    json: () =>
+      Promise.resolve({
+        code: 200,
+        message: 'ログインしました。',
+        access_token: '17262|7wvg41a6mSiuxqrvJ9Vg6nL8rUmtnkG57IwnGmZI',
+        role: 4,
+      }),
+  }),
+);
 
-describe('check crash', () => {
-  it('should not crash when rendered', () => {
-    render(<LoginScreen />);
-
-    expect(screen.queryByTestId('login-screen')).toBeTruthy();
-  });
+beforeEach(() => {
+  fetch.mockClear();
 });
 
 describe('check validation', () => {
+  it('Login success', async () => {
+    const login = render(<LoginScreen />);
+    const inputEmail = login.getByTestId('Email');
+    const submitButton = login.getByTestId('submit-button');
+
+    fireEvent.changeText(inputEmail, '');
+    fireEvent.press(submitButton);
+
+    const response = await callApiLogin('long@gmail.com', '123456');
+
+    await waitFor(() => {
+      expect(response?.code).toBe(200);
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it('Email can not be blank', async () => {
     const login = render(<LoginScreen />);
     const inputEmail = login.getByTestId('Email');
@@ -27,21 +49,7 @@ describe('check validation', () => {
     fireEvent.changeText(inputEmail, '');
     fireEvent.press(submitButton);
 
-    global.fetch = await jest.fn(() =>
-      Promise.resolve({
-        json: () =>
-          Promise.resolve({
-            code: 200,
-            message: 'ログインしました。',
-            access_token: '17262|7wvg41a6mSiuxqrvJ9Vg6nL8rUmtnkG57IwnGmZI',
-            role: 4,
-          }),
-      }),
-    );
-
-    await waitFor(() => {
-      screen.getByText('Email cannot be blank');
-    });
+    screen.getByText('Email cannot be blank');
   });
 
   it('Check invalid email', () => {
@@ -118,5 +126,12 @@ describe('check validation', () => {
     expect(emailError2).toBeNull();
     expect(passwordError1).toBeNull();
     expect(passwordError2).toBeNull();
+  });
+
+  describe('check crash', () => {
+    it('should not crash when rendered', () => {
+      render(<LoginScreen />);
+      expect(screen.queryByTestId('login-screen')).toBeTruthy();
+    });
   });
 });

@@ -1,6 +1,31 @@
 import React, {useState} from 'react';
 import {Button, StyleSheet, Text, TextInput, View} from 'react-native';
 
+export const callApiLogin = async (email, password) => {
+  try {
+    const formDataApi = new FormData();
+    formDataApi.append('email', email);
+    formDataApi.append('password', password);
+
+    const result = await fetch(
+      'https://snafty-staging.test-development.work/ai-img/login',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(formDataApi),
+      },
+    );
+    const data = await result.json();
+
+    return data;
+  } catch (e) {
+    return null;
+  }
+};
+
 const LoginScreen = () => {
   const [formData, setFormData] = useState({
     values: {
@@ -23,27 +48,6 @@ const LoginScreen = () => {
         [name]: value,
       },
     });
-  };
-
-  const callApiLogin = (email, password) => {
-    const formDataApi = new FormData();
-    formDataApi.append('email', email);
-    formDataApi.append('password', password);
-
-    fetch('https://snafty-staging.test-development.work/ai-img/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(formDataApi),
-    })
-      .then(response => {
-        console.log('response.json()?.data:', response.json()?.data);
-      })
-      .catch(error => {
-        console.error(error);
-      });
   };
 
   const handleSubmit = event => {
