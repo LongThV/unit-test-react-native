@@ -8,6 +8,10 @@ import {
 } from '@testing-library/react-native';
 import LoginScreen, {callApiLogin} from './LoginScreen';
 
+beforeEach(() => {
+  fetch.mockClear();
+});
+
 global.fetch = jest.fn(() =>
   Promise.resolve({
     json: () =>
@@ -19,10 +23,6 @@ global.fetch = jest.fn(() =>
       }),
   }),
 );
-
-beforeEach(() => {
-  fetch.mockClear();
-});
 
 describe('check validation', () => {
   it('Login success', async () => {
